@@ -1,0 +1,8 @@
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\bin\Debug\gambling.exe.config
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\bin\Debug\gambling.exe
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\bin\Debug\gambling.pdb
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\obj\Debug\gambling.csprojResolveAssemblyReference.cache
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\obj\Debug\gambling.exe
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\obj\Debug\gambling.pdb
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\bin\Debug\MySql.Data.dll
+c:\users\mihai\documents\visual studio 2015\Projects\gambling\gambling\bin\Debug\MySql.Data.xml
