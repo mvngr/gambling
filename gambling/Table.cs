@@ -10,7 +10,7 @@ namespace gambling
     class Table
     {
 
-        public int blind;
+        public int blind_cost;
         public int blind_pos;
         public List<User> users;
         public int chairs;
@@ -20,7 +20,7 @@ namespace gambling
         {
             users = new List<User>(6);
             usedCards = new List<Card>();
-            blind = 50;
+            blind_cost = 50;
             chairs = 6;
             blind_pos = 4;
         }

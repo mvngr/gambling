@@ -39,16 +39,17 @@ namespace gambling
 
         */
 
-        struct Player
+        public struct TwoStrings
         {
-            string name;
-            string money;
+            public string s1;
+            public string s2;
+            public int length;
         }
 
         public MyConsoleOut(Game game)
         {
-            getImage(game);
             calculateSpace(game);
+            getImage(game);
         }
         public void enter()
         {
@@ -69,12 +70,24 @@ namespace gambling
             }
             return;
         }
+        public string getAnySpace(int count)
+        {
+            string res = null;
+            while (count > 0)
+            {
+                count--;
+                res += ' ';
+            }
+            return res;
+        }
         public void getImage(Game game)
         {
             Console.Clear();
             Console.WriteLine("Вы играете за: </todo>");
             enter();
-            printUpZone(game);
+            printZone(game, 0, upUsersCount);
+            printZone(game, upUsersCount, leftRightUsersCount + upUsersCount);
+            printZone(game, upUsersCount + leftRightUsersCount, leftRightUsersCount + upUsersCount + downUsersCount);
 
         }
         private int getLenghtInt(int e)
@@ -87,40 +100,62 @@ namespace gambling
             }
             return len;
         }
-        public void printUpZone(Game game)
+        public TwoStrings alignLength(TwoStrings inp)
         {
-            List<int> lengthName = new List<int>();
-            
-            for(int i = 0; i < upUsersCount; i++)
+            int l = inp.s1.Length - inp.s2.Length;
+            if(l > 0)
             {
-                if (i - 1 == game.blind_pos) //если блайнд был у предыдущего игрока = -2 пробела
-                    printAnySpace(6);
-                else
-                    spacex8();
-
-                int lenGetCash = getLenghtInt(game.users[i].getCash());
-                
-                if(game.users[i].name.Length >= lenGetCash)
-                    lengthName.Add(game.users[i].name.Length);
-                else
-                    lengthName.Add(lenGetCash);
-                
-                Console.Write(game.users[i].name);
-
-                if (i - 1 == game.blind_pos) //фишка диллера
-                    Console.Write(" D");
-
-                printAnySpace(lengthName.Last() - game.users[i].name.Length); //добавляем пробелы если нужно (для выравнивания)
+                inp.length = inp.s1.Length;
+                inp.s2 += getAnySpace(l);
             }
-            Console.Write('\n');
-            for(int i = 0; i < upUsersCount; i++)
+            else
+            {
+                inp.length = inp.s2.Length;
+                inp.s1 += getAnySpace(-l);
+            }
+            return inp;
+        }
+        public TwoStrings getTSUser(User user, bool blind)
+        {
+            TwoStrings res;
+            res.s1 = user.name;
+            if (blind)
+                res.s1 += " D";
+            res.s2 = user.getCash().ToString();
+            res.length = -1;
+            res = alignLength(res);
+            return res;
+            
+        }
+        private void parseTS(TwoStrings ts, List<string> s1, List<string> s2)
+        {
+            s1.Add(ts.s1);
+            s2.Add(ts.s2);
+            return;
+        }
+        private void printZone(Game game, int stIndUsers, int endIndUsers)
+        {
+            List<string> s1 = new List<string>();
+            List<string> s2 = new List<string>();
+
+            for(int i = stIndUsers; i < endIndUsers; i++)
+                if (game.blind_pos == i)
+                    parseTS(getTSUser(game.users[i], true), s1, s2);
+                else
+                    parseTS(getTSUser(game.users[i], false), s1, s2);
+
+            foreach(string s in s1)
             {
                 spacex8();
-
-                Console.Write(game.users[i].getCash());
-                printAnySpace(lengthName.Last() - getLenghtInt(game.users[i].getCash()));
+                Console.Write(s);
             }
             Console.Write('\n');
+            foreach (string s in s2)
+            {
+                spacex8();
+                Console.Write(s);
+            }
+            Console.Write('\n'); 
         }
         private void calculateSpace(Game game)
         {
@@ -155,7 +190,7 @@ namespace gambling
             {
                 leftRightUsersCount = 2;
                 upUsersCount = (game.users.Count - 2) / 2 + 1;
-                downUsersCount = game.users.Count - upUsersCount;
+                downUsersCount = game.users.Count - upUsersCount - 2;
             }
             return;
         }

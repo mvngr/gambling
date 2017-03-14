@@ -12,7 +12,7 @@ namespace gambling
 
         public Game(Table table)
         {
-            blind = table.blind;
+            blind_cost = table.blind_cost;
             blind_pos = table.blind_pos;
             chairs = table.chairs;
             usedCards = table.usedCards;
@@ -25,7 +25,7 @@ namespace gambling
                 fillBetArray(bets, chairs);
                 dealTheCards();
                 makeBlind();
-                move(blind);
+                move(blind_cost);
             }
         }
         ~Game()
@@ -146,8 +146,8 @@ namespace gambling
 
             nextBlind();
 
-            addBet(blind_pos + 1, blind / 2);
-            addBet(blind_pos + 2, blind);
+            addBet(blind_pos + 1, blind_cost / 2);
+            addBet(blind_pos + 2, blind_cost);
             
             return;
         }
@@ -234,7 +234,7 @@ namespace gambling
                             Console.WriteLine("Неправильный синтаксис в /race");
                             return -1;
                         }
-                        if (Convert.ToInt32(inp.args) >= blind)
+                        if (Convert.ToInt32(inp.args) >= blind_cost)
                         {
                             addBet(user_ind, tmp); 
                             return tmp;
