@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace gambling
 {
     class MyConsoleOut
@@ -13,7 +14,7 @@ namespace gambling
         You: Name
 
                   Player1  D              Player2
-                  1000                    2000
+                  1000 | 9S 8S            2000
 
 
         Player3           JD 10C 2S TC 2C              Player4
@@ -38,6 +39,8 @@ namespace gambling
         /fold
 
         */
+        const string DESIGN1 = "=======";
+        const string YOURTURN = "Твой ход [/help]: ";
 
         public struct TwoStrings
         {
@@ -86,8 +89,12 @@ namespace gambling
             Console.WriteLine("Вы играете за: </todo>");
             enter();
             printZone(game, 0, upUsersCount);
-            printZone(game, upUsersCount, leftRightUsersCount + upUsersCount);
-            printZone(game, upUsersCount + leftRightUsersCount, leftRightUsersCount + upUsersCount + downUsersCount);
+            enter();
+            printZone(game);
+            enter();
+            printZone(game, upUsersCount + leftRightUsersCount - 1, leftRightUsersCount + upUsersCount + downUsersCount - 1);
+            enter();
+            printLog(game);
 
         }
         private int getLenghtInt(int e)
@@ -115,15 +122,41 @@ namespace gambling
             }
             return inp;
         }
+        private string changeSuit(string inp)
+        {
+            //♠ ♤ ♥ ♡ ♣ ♧ ♦ ♢
+            //Hearts, Diamonds, Clubs, Spades
+            switch (inp[inp.Length - 1])
+            {
+                case 'H':
+                    inp = inp.Replace('H', '♥');
+                    break;
+                case 'D':
+                    inp = inp.Replace('D', '♦');
+                    break;
+                case 'C':
+                    inp = inp.Replace('C', '♣');
+                    break;
+                case 'S':
+                    inp = inp.Replace('S', '♠');
+                    break;
+                default: break;
+            }
+            return inp;
+        }
         public TwoStrings getTSUser(User user, bool blind)
         {
             TwoStrings res;
             res.s1 = user.name;
             if (blind)
                 res.s1 += " D";
-            res.s2 = user.getCash().ToString();
+            if (user.getCard(0) != null)
+                res.s2 = user.getCash().ToString() + " | " + user.getCard(0).toString() + ' ' + user.getCard(1).toString();
+            else
+                res.s2 = user.getCash().ToString();
             res.length = -1;
             res = alignLength(res);
+            
             return res;
             
         }
@@ -133,18 +166,68 @@ namespace gambling
             s2.Add(ts.s2);
             return;
         }
-        private void printZone(Game game, int stIndUsers, int endIndUsers)
+        private void printZone(Game game)
         {
             List<string> s1 = new List<string>();
             List<string> s2 = new List<string>();
 
-            for(int i = stIndUsers; i < endIndUsers; i++)
-                if (game.blind_pos == i)
-                    parseTS(getTSUser(game.users[i], true), s1, s2);
+            parseTS(getTSUser(game.users.Last(), true), s1, s2);
+            int i = 0, countChar = 0;
+            string temp = "";
+            while (i != 5)
+            {
+                if (i < game.openCards.Count)
+                {
+                    temp += game.openCards[i].toString();
+                    countChar += Convert.ToInt16(s1.Last());
+                }
                 else
-                    parseTS(getTSUser(game.users[i], false), s1, s2);
+                {
+                    temp += "  ";
+                    countChar += 2;
+                }
+                i++;
+            }
+            s1.Add(temp);
+            s2.Add(getAnySpace(countChar));
 
-            foreach(string s in s1)
+            parseTS(getTSUser(game.users[upUsersCount], true), s1, s2);
+
+            foreach (string s in s1)
+            {
+                Console.Write(s);
+                spacex8();
+            }
+            Console.Write('\n');
+            foreach (string s in s2)
+            {
+                Console.Write(s);
+                spacex8();
+            }
+            Console.Write('\n');
+
+        }
+        private void printZone(Game game, int stIndUsers, int endIndUsers)
+        {
+            List<string> s1 = new List<string>();
+            List<string> s2 = new List<string>();
+            if (stIndUsers <= endIndUsers)
+            {
+                for (int i = stIndUsers; i < endIndUsers; i++)
+                    if (game.blind_pos == i)
+                        parseTS(getTSUser(game.users[i], true), s1, s2);
+                    else
+                        parseTS(getTSUser(game.users[i], false), s1, s2);
+            }
+            else
+            {
+                for (int i = endIndUsers; i > stIndUsers; i--)
+                    if (game.blind_pos == i)
+                        parseTS(getTSUser(game.users[i], true), s1, s2);
+                    else
+                        parseTS(getTSUser(game.users[i], false), s1, s2);
+            }
+            foreach (string s in s1)
             {
                 spacex8();
                 Console.Write(s);
@@ -156,6 +239,16 @@ namespace gambling
                 Console.Write(s);
             }
             Console.Write('\n'); 
+        }
+        private void printLog(Game game)
+        {
+            if (game.log.Count == 0)
+                return;
+            Console.WriteLine(DESIGN1);
+            foreach(string s in game.log)
+                Console.WriteLine(s);
+            Console.WriteLine(DESIGN1);
+            return;
         }
         private void calculateSpace(Game game)
         {
@@ -199,7 +292,7 @@ namespace gambling
         int downUsersCount;
         int leftRightUsersCount;
 
-        List<string> moves;
+        
 
 
     }

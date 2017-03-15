@@ -15,11 +15,13 @@ namespace gambling
         public List<User> users;
         public int chairs;
         public List<Card> usedCards;
+        public List<Card> openCards;
 
         public Table()
         {
             users = new List<User>(6);
             usedCards = new List<Card>();
+            openCards = new List<Card>();
             blind_cost = 50;
             chairs = 6;
             blind_pos = 4;

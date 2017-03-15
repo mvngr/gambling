@@ -8,7 +8,14 @@ namespace gambling
 {
     class Game : Table
     {
+        const string CALL = " заколлировал ставку в размере ";
+        const string ALLIN = " ставит все свои фишки";
+        const string RACE = " поднял ставку до ";
+        const string CHECK = " пропустил свой ход";
+        const string FOLD = " сбросил карты";
+
         List<Bet> bets;
+        public List<string> log;
 
         public Game(Table table)
         {
@@ -18,6 +25,8 @@ namespace gambling
             usedCards = table.usedCards;
             users = table.users;
             bets = new List<Bet>();
+            log = new List<string>();
+
             cons = new MyConsoleOut(this);
 
             while (true)
@@ -25,6 +34,7 @@ namespace gambling
                 fillBetArray(bets, chairs);
                 dealTheCards();
                 makeBlind();
+                cons.getImage(this);
                 move(blind_cost);
             }
         }
@@ -169,11 +179,9 @@ namespace gambling
         private Command getCommandFromString(string inp)
         {
             Command res;
-            if (inp == null)
+            while (inp.Length == 0)
             {
-                res.cmd = null;
-                res.args = null;
-                return res;
+                inp = Console.ReadLine();
             }
 
             if (inp[0] != '/')
@@ -211,6 +219,17 @@ namespace gambling
                 default: return false;
             }
         }
+        private void addHistory(string s)
+        {
+            if(log.Count == 10)
+                log.RemoveAt(0);
+            log.Add(s);
+            return;
+        }
+        private string getBegining(int user_ind)
+        {
+            return "Игрок " + users[user_ind].name;
+        }
         public int turn(int user_ind, int current_bet)
         {
             string command = Console.ReadLine();
@@ -225,6 +244,7 @@ namespace gambling
                 {
                     case "/call":
                         addBet(user_ind, current_bet); //todo
+                        addHistory(getBegining(user_ind) + CALL + current_bet);
                         return current_bet;
 
                     case "/race": //good job
@@ -236,7 +256,8 @@ namespace gambling
                         }
                         if (Convert.ToInt32(inp.args) >= blind_cost)
                         {
-                            addBet(user_ind, tmp); 
+                            addBet(user_ind, tmp);
+                            addHistory(getBegining(user_ind) + RACE + tmp);
                             return tmp;
                         }
                         else
@@ -249,11 +270,14 @@ namespace gambling
                         if (users[user_ind].getCash() >= current_bet)
                             temp = users[user_ind].getCash();
                         addBet(user_ind, users[user_ind].getCash());
+                        addHistory(getBegining(user_ind) + ALLIN);
                         return temp;
-                    case "/fold":
+                    case "/fold": 
                         fold(user_ind);
+                        addHistory(getBegining(user_ind) + FOLD);
                         return current_bet;
                     case "/check":
+                        addHistory(getBegining(user_ind) + CHECK);
                         return current_bet;
 
                     default:
