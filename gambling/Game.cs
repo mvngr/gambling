@@ -14,17 +14,17 @@ namespace gambling
         const string CHECK = " пропустил свой ход";
         const string FOLD = " сбросил карты";
 
-        List<Bet> bets;
+        List<Bet> bets; //хранит в себе суммы, поставленные в происходящем кону
         public List<string> log;
 
         public Game(Table table)
         {
             blind_cost = table.blind_cost;
             blind_pos = table.blind_pos;
-            chairs = table.chairs;
+            chairs = table.users.Count;
             usedCards = table.usedCards;
             users = table.users;
-            bets = new List<Bet>();
+            bets = new List<Bet>(); 
             log = new List<string>();
 
             cons = new MyConsoleOut(this);
@@ -34,8 +34,15 @@ namespace gambling
                 fillBetArray(bets, chairs);
                 dealTheCards();
                 makeBlind();
-                cons.getImage(this);
+                printAllInfo();
                 move(blind_cost);
+                openThreeNewCards();
+                move(0);
+                openNewPublicCard();
+                move(0);
+                openNewPublicCard();
+                endRound();
+     
             }
         }
         ~Game()
@@ -60,6 +67,20 @@ namespace gambling
         public override void printAllInfo()
         {
             cons.getImage(this);
+        }
+        private void endRound()
+        {
+            log.Add("Раунд закончился");
+            //todo проверка кто выйграл
+            bets.Clear();
+            fillBetArray(bets, chairs);
+            nextBlind();
+
+        }
+        private int getRankCombinations(Card n1, Card n2, List<Card> openCards)
+        {
+            //todo
+            return 0;
         }
         private void fillBetArray(List<Bet> bets, int count)
         {
@@ -148,6 +169,11 @@ namespace gambling
             tmp.fold = true;
 
             bets[user_ind] = tmp;
+
+            Card nulCard = null;
+
+            users[user_ind].setCard(0, nulCard);
+            users[user_ind].setCard(1, nulCard);
 
             return;
         }
@@ -243,11 +269,11 @@ namespace gambling
                 switch (inp.cmd)
                 {
                     case "/call":
-                        addBet(user_ind, current_bet); //todo
+                        addBet(user_ind, current_bet - bets[user_ind].amount); //todo
                         addHistory(getBegining(user_ind) + CALL + current_bet);
                         return current_bet;
 
-                    case "/race": //good job
+                    case "/race": //todo после /call может увеличивать количество фишек
                         int tmp = Convert.ToInt32(inp.args);
                         if (tmp <= 0)
                         {
@@ -296,6 +322,36 @@ namespace gambling
             }
             return true;
         }
+        private bool checkPlayUsers()
+        {
+            int count = 0;
+            bool allin = false;
+            foreach(Bet b in bets)
+                if (!b.fold)
+                {
+                    count++;
+                    if (b.allin)
+                    {
+                        count--;
+                        allin = true;
+                    }    
+                }
+            
+            if (count < 2 || (allin && count < 1))
+                return false;
+            else
+                return true;
+        }
+        private void findWinner()
+        {
+            int i = 0;
+            while (i < 5)
+            {
+                //todo
+
+                i++;
+            }
+        }
         private void move(int start_bet)
         {
             int moveUserInd = cycle(blind_pos + 3); //начало хода
@@ -303,22 +359,48 @@ namespace gambling
             int tmp;
             while (true)
             {
-                Console.WriteLine("Ход игрока " + users[moveUserInd].name + " | Карты: " + users[moveUserInd].getCard(0).toString() + ' ' + users[moveUserInd].getCard(1).toString() + ':');
-                do {
-                    tmp = turn(moveUserInd, cur_bet);
-                    if (tmp > cur_bet)
-                        cur_bet = tmp;
+                if (users[moveUserInd].getCard(0) != null) {
+                    Console.WriteLine("Ход игрока " + users[moveUserInd].name + " | Карты: " + users[moveUserInd].getCard(0).toString() + ' ' + users[moveUserInd].getCard(1).toString() + ':');
+                    do
+                    {
+                            tmp = turn(moveUserInd, cur_bet);
+                            if (tmp > cur_bet)
+                                cur_bet = tmp;
 
-                    printAllInfo();                      
+                            printAllInfo();
+                    }
+                    while (tmp == -1);
+
+                    if(checkPlayUsers())
+                    {
+                        
+                    }
+
+                    if (moveUserInd == cycle(blind_pos + 2) && checkBets(cur_bet))
+                        return;
                 }
-                while (tmp == -1);
-                if (moveUserInd == cycle(blind_pos + 3) && checkBets(cur_bet))
-                    return;
 
                 moveUserInd = cycle(moveUserInd + 1); //двигает ход
-                //Console.WriteLine("Обработана ошибка");
             }
             
+        }
+        private void openNewPublicCard()
+        {
+            Card temp;
+            do
+                temp = new Card();
+            while (!checkCardToAllUsers(temp));
+            usedCards.Add(temp);
+            openCards.Add(temp);
+            printAllInfo();
+            return;
+        }
+        private void openThreeNewCards()
+        {
+            openNewPublicCard();
+            openNewPublicCard();
+            openNewPublicCard();
+            return;
         }
 
 

@@ -54,6 +54,7 @@ namespace gambling
             calculateSpace(game);
             getImage(game);
         }
+
         public void enter()
         {
             Console.WriteLine('\n');
@@ -155,9 +156,9 @@ namespace gambling
             TwoStrings res;
             res.s1 = user.name;
             if (blind)
-                res.s1 += " D";
+                res.s1 += " (D)";
             if (user.getCard(0) != null)
-                res.s2 = user.getCash().ToString() + " | " + user.getCard(0).toString() + ' ' + user.getCard(1).toString();
+                res.s2 = user.getCash().ToString() + " | " + changeSuit( user.getCard(0).toString()) + ' ' + changeSuit(user.getCard(1).toString());
             else
                 res.s2 = user.getCash().ToString();
             res.length = -1;
@@ -184,26 +185,19 @@ namespace gambling
             else
                 parseTS(getTSUser(game.users.Last(), false), s1, s2);
 
-            int i = 0, countChar = 0;
+            int i = 0;
             string temp = "";
             while (i != 5)
             {
                 if (i < game.openCards.Count)
-                {
-                    temp += game.openCards[i].toString();
-                    countChar += Convert.ToInt16(s1.Last());
-                }
+                    temp += changeSuit(game.openCards[i].toString()) + ' ';
                 else
-                {
                     temp += "  ";
-                    countChar += 2;
-                }
                 i++;
-
             }
-            
+
+            s2.Add(getAnySpace(temp.Length));
             s1.Add(temp);
-            s2.Add(getAnySpace(countChar));
 
             if (upUsersCount == game.blind_pos)
                 parseTS(getTSUser(game.users[upUsersCount], true), s1, s2);

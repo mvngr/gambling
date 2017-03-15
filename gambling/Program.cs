@@ -138,6 +138,7 @@ namespace gambling
         }
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             mainParametrs();
             
             Console.ReadKey();
