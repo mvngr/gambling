@@ -83,6 +83,12 @@ namespace gambling
             }
             return res;
         }
+        public int notNegative(int n)
+        {
+            if (n < 0)
+                n = 0;
+            return n;
+        }
         public void getImage(Game game)
         {
             Console.Clear();
@@ -92,7 +98,7 @@ namespace gambling
             enter();
             printZone(game);
             enter();
-            printZone(game, upUsersCount + leftRightUsersCount - 1, leftRightUsersCount + upUsersCount + downUsersCount - 1);
+            printZone(game, notNegative(leftRightUsersCount - 1) + upUsersCount + notNegative(downUsersCount - 1), upUsersCount + notNegative(leftRightUsersCount - 1) - 1);
             enter();
             printLog(game);
 
@@ -166,12 +172,18 @@ namespace gambling
             s2.Add(ts.s2);
             return;
         }
-        private void printZone(Game game)
+        private void printZone(Game game) //часть с картами
         {
+            if (leftRightUsersCount == 0)
+                return;
             List<string> s1 = new List<string>();
             List<string> s2 = new List<string>();
 
-            parseTS(getTSUser(game.users.Last(), true), s1, s2);
+            if (game.users.Count - 1 == game.blind_pos)
+                parseTS(getTSUser(game.users.Last(), true), s1, s2);
+            else
+                parseTS(getTSUser(game.users.Last(), false), s1, s2);
+
             int i = 0, countChar = 0;
             string temp = "";
             while (i != 5)
@@ -187,11 +199,16 @@ namespace gambling
                     countChar += 2;
                 }
                 i++;
+
             }
+            
             s1.Add(temp);
             s2.Add(getAnySpace(countChar));
 
-            parseTS(getTSUser(game.users[upUsersCount], true), s1, s2);
+            if (upUsersCount == game.blind_pos)
+                parseTS(getTSUser(game.users[upUsersCount], true), s1, s2);
+            else
+                parseTS(getTSUser(game.users[upUsersCount], false), s1, s2);
 
             foreach (string s in s1)
             {
@@ -207,7 +224,7 @@ namespace gambling
             Console.Write('\n');
 
         }
-        private void printZone(Game game, int stIndUsers, int endIndUsers)
+        private void printZone(Game game, int stIndUsers, int endIndUsers) //часть без карт
         {
             List<string> s1 = new List<string>();
             List<string> s2 = new List<string>();
@@ -221,7 +238,7 @@ namespace gambling
             }
             else
             {
-                for (int i = endIndUsers; i > stIndUsers; i--)
+                for (int i = stIndUsers; i > endIndUsers; i--)
                     if (game.blind_pos == i)
                         parseTS(getTSUser(game.users[i], true), s1, s2);
                     else
@@ -282,7 +299,10 @@ namespace gambling
             if (def)
             {
                 leftRightUsersCount = 2;
-                upUsersCount = (game.users.Count - 2) / 2 + 1;
+                if (game.users.Count % 2 != 0)
+                    upUsersCount = (game.users.Count - 2) / 2 + 1;
+                else
+                    upUsersCount = (game.users.Count - 2) / 2;
                 downUsersCount = game.users.Count - upUsersCount - 2;
             }
             return;

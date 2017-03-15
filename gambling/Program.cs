@@ -54,7 +54,7 @@ namespace gambling
         static private Command getCommandFromString(string inp)
         {
             Command res;
-            if (inp == null)
+            if (inp.Length == 0)
             {
                 res.cmd = null;
                 res.args = null;
@@ -113,6 +113,7 @@ namespace gambling
                         table.addUser(new User("Павел"));
                         table.addUser(new User("Пётр"));
                         table.addUser(new User("Валерий"));
+                        table.addUser(new User("Артём"));
                         break;
 
                     default:
