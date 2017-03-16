@@ -71,16 +71,24 @@ namespace gambling
         private void endRound()
         {
             log.Add("Раунд закончился");
-            //todo проверка кто выйграл
+            calcWinner(this, openCards);
             bets.Clear();
             fillBetArray(bets, chairs);
             nextBlind();
 
         }
-        private int getRankCombinations(Card n1, Card n2, List<Card> openCards)
+        private void calcWinner(Table table, List<Card> openCards)
         {
-            //todo
-            return 0;
+            Rules rules = new Rules(openCards);
+            for(int i = 0; i < table.users.Count; i++)
+                if (table.users[i].getCard(0) != null)
+                    rules.setNewCards(table.users[i].getCard(0), table.users[i].getCard(1));
+
+            List<int> res;
+
+            res = rules.calculateRes(); //лист ind победителей (но это не точно)
+
+            return;
         }
         private void fillBetArray(List<Bet> bets, int count)
         {
